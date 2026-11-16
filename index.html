@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LIONHEARTS | متجر شحن الألعاب</title>
+<style>
+:root{--bg:#0b0b0e;--panel:#15151b;--gold:#e7b84b;--muted:#a6a6ad;--line:#2a2a33}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font-family:Tahoma,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#101015ed;border-bottom:1px solid var(--line);padding:14px 5%;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-size:22px;font-weight:900;letter-spacing:1px;color:var(--gold)}.logo span{color:#fff}
+button,select,input{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 15px;background:var(--gold);color:#17130a;font-weight:bold}
+select,input{background:#0e0e13;color:white;border:1px solid var(--line);border-radius:9px;padding:11px;width:100%}
+.hero{padding:52px 5% 35px;background:radial-gradient(ellipse at 80% 0%,#44351b 0%,transparent 50%)}
+.hero h1{font-size:clamp(30px,5vw,52px);margin:0 0 12px}.hero h1 b{color:var(--gold)}.hero p{color:var(--muted);max-width:650px;line-height:1.9}
+.wrap{padding:20px 5% 60px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:15px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:17px;text-align:center;transition:.2s}
+.card:hover{border-color:var(--gold);transform:translateY(-3px)}.icon{font-size:38px;margin:4px 0 12px}.card h3{margin:6px 0 14px}
+.section-title{margin:35px 0 15px;font-size:22px}.section-title:after{content:"";display:block;width:45px;height:3px;background:var(--gold);margin-top:9px}
+#product{display:none;background:var(--panel);border:1px solid var(--line);padding:22px;border-radius:16px;margin-top:22px}
+.packages{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:15px 0}
+.pack{background:#101015;border:1px solid var(--line);color:white;text-align:right;border-radius:12px;padding:14px}
+.pack.selected{border-color:var(--gold);background:#302719}.pack small{display:block;color:var(--muted);margin-top:6px}
+.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:15px 0}
+.notice{color:var(--muted);font-size:13px;line-height:1.8}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+#cart{position:fixed;left:18px;bottom:18px;z-index:8;background:var(--gold);padding:13px 17px;border-radius:50px;font-weight:bold;box-shadow:0 5px 25px #0008}
+footer{border-top:1px solid var(--line);padding:25px 5%;color:var(--muted);text-align:center}
+.modal{display:none;position:fixed;inset:0;background:#000b;z-index:10;align-items:center;justify-content:center;padding:15px}.modalbox{max-width:520px;width:100%;background:var(--panel);border:1px solid var(--gold);border-radius:16px;padding:22px}
+.close{float:left;background:#333;color:#fff}.price{color:var(--gold);font-weight:bold}
+@media(max-width:520px){header{padding:12px 4%}.hero{padding:35px 4%}.wrap{padding:15px 4% 50px}}
+</style></head>
+<body>
+<header><div class="logo">LION<span>HEARTS</span></div><div style="display:flex;gap:9px;align-items:center"><select id="currency" style="width:auto" onchange="renderPrices()"><option value="TRY">الليرة التركية ₺</option><option value="USD">الدولار $</option></select><button onclick="showCart()">السلة (<span id="count">0</span>)</button></div></header>
+<section class="hero"><h1>اشحن لعبتك المفضلة مع <b>LIONHEARTS</b></h1><p>متجرك لشحن الألعاب والبطاقات الرقمية. اختر اللعبة، حدد الباقة، أدخل بيانات اللاعب، ثم أرسل طلبك.</p></section>
+<main class="wrap">
+<div class="toolbar"><h2 style="margin:0">الألعاب والتطبيقات</h2><span class="notice">واجهة تجريبية قابلة للتخصيص</span></div>
+<div class="grid" id="games"></div>
+<h2 class="section-title">بطاقات رقمية وتطبيقات</h2>
+<div class="grid" id="digital"></div>
+<section id="product">
+<button class="close" onclick="closeProduct()">إغلاق</button><h2 id="prodTitle"></h2><p class="notice" id="prodDesc"></p>
+<h3>اختر باقة الشحن</h3><div class="packages" id="packs"></div>
+<div class="formgrid"><label>معرّف اللاعب / Player ID<input id="player" placeholder="أدخل ID اللاعب"></label><label>السيرفر (إن وجد)<input id="server" placeholder="اختياري"></label></div>
+<div class="notice">تأكد من صحة بيانات اللاعب قبل إرسال الطلب. الأسعار المعروضة تجريبية ويمكن تعديلها من ملفات الموقع.</div>
+<div class="actions"><button onclick="addToCart()">إضافة إلى السلة</button><button style="background:#333;color:white" onclick="orderNow()">اطلب الآن</button></div>
+</section>
+</main>
+<button id="cart" onclick="showCart()">🛒 السلة <span id="cartTotal">0</span></button>
+<div class="modal" id="modal"><div class="modalbox"><button class="close" onclick="hideModal()">إغلاق</button><h2 id="modalTitle">السلة</h2><div id="modalBody"></div></div></div>
+<footer>© 2026 LIONHEARTS — جميع الحقوق محفوظة</footer>
+<script>
+const games=[
+{name:"PUBG Mobile",icon:"🎯",desc:"شحن شدات PUBG Mobile",packs:[["60 UC",1.99],["325 UC",8.99],["660 UC",17.99],["1800 UC",44.99],["3850 UC",89.99]]},
+{name:"Free Fire",icon:"🔥",desc:"شحن جواهر Free Fire",packs:[["100 جوهرة",1.49],["310 جوهرة",4.49],["520 جوهرة",7.49],["1060 جوهرة",14.99]]},
+{name:"Mobile Legends",icon:"⚔️",desc:"شحن Diamonds",packs:[["86 Diamonds",1.99],["172 Diamonds",3.99],["257 Diamonds",5.99],["706 Diamonds",14.99]]},
+{name:"Call of Duty Mobile",icon:"🪖",desc:"شحن CP",packs:[["80 CP",0.99],["420 CP",4.99],["880 CP",9.99],["2400 CP",24.99]]},
+{name:"Roblox",icon:"🧱",desc:"بطاقات ورصيد Roblox",packs:[["400 Robux",4.99],["800 Robux",9.99],["1700 Robux",19.99]]},
+{name:"FC Mobile",icon:"⚽",desc:"شحن نقاط FC Mobile",packs:[["100 نقطة",0.99],["500 نقطة",4.99],["1000 نقطة",9.99]]},
+{name:"Genshin Impact",icon:"✨",desc:"شحن Genesis Crystals",packs:[["60 بلورة",0.99],["300+30",4.99],["980+110",14.99]]}
+];
+const digital=[["Steam","🎮"],["PlayStation","🕹️"],["Xbox","🎯"],["Google Play","▶️"],["Apple Gift Card","🍎"],["TikTok Coins","🎵"],["Spotify Premium","🎧"]];
+let current=null,selected=null,cart=[];
+function price(v){return document.getElementById("currency").value==="TRY"?(v*34.5).toFixed(0)+" ₺":"$"+v.toFixed(2)}
+function renderPrices(){document.querySelectorAll(".pack").forEach((el,i)=>{let p=current?.packs[i];if(p)el.querySelector("small").textContent=price(p[1])});}
+function draw(){document.getElementById("games").innerHTML=games.map((g,i)=>`<div class="card"><div class="icon">${g.icon}</div><h3>${g.name}</h3><button onclick="openProduct(${i})">عرض الباقات</button></div>`).join("");
+document.getElementById("digital").innerHTML=digital.map(d=>`<div class="card"><div class="icon">${d[1]}</div><h3>${d[0]}</h3><button onclick="digitalInfo('${d[0]}')">قريباً</button></div>`).join("");}
+function openProduct(i){current=games[i];selected=null;document.getElementById("product").style.display="block";document.getElementById("prodTitle").textContent=current.icon+" "+current.name;document.getElementById("prodDesc").textContent=current.desc;document.getElementById("packs").innerHTML=current.packs.map((p,j)=>`<button class="pack" onclick="choose(${j},this)">${p[0]}<small>${price(p[1])}</small></button>`).join("");document.getElementById("product").scrollIntoView({behavior:"smooth"});}
+function choose(i,el){selected=i;document.querySelectorAll(".pack").forEach(x=>x.classList.remove("selected"));el.classList.add("selected")}
+function closeProduct(){document.getElementById("product").style.display="none"}
+function addToCart(){if(selected===null){alert("يرجى اختيار باقة أولاً");return}let p=current.packs[selected];cart.push({game:current.name,pack:p[0],usd:p[1],player:document.getElementById("player").value,server:document.getElementById("server").value});updateCart();alert("تمت إضافة الباقة إلى السلة")}
+function updateCart(){document.getElementById("count").textContent=cart.length;document.getElementById("cartTotal").textContent=cart.length}
+function showCart(){document.getElementById("modalTitle").textContent="سلة الطلبات";document.getElementById("modalBody").innerHTML=cart.length?cart.map((x,i)=>`<p>${x.game} — ${x.pack} — <b class="price">${price(x.usd)}</b><br><small>Player ID: ${x.player||"غير مدخل"}</small> <button onclick="removeItem(${i})" style="background:#333;color:white">حذف</button></p>`).join("")+`<button onclick="orderNow()">متابعة وإرسال الطلب</button>`:"السلة فارغة";document.getElementById("modal").style.display="flex"}
+function removeItem(i){cart.splice(i,1);updateCart();showCart()}
+function hideModal(){document.getElementById("modal").style.display="none"}
+function orderNow(){if(!cart.length){if(selected===null){alert("اختر باقة أولاً");return}addToCart();}let msg="طلب جديد من LIONHEARTS%0A"+cart.map(x=>`${x.game} - ${x.pack} - ${price(x.usd)} - ID: ${x.player} - Server: ${x.server}`).join("%0A");document.getElementById("modalTitle").textContent="إرسال الطلب";document.getElementById("modalBody").innerHTML=`<p>تم تجهيز ملخص الطلب. اربط زر الإرسال برقم واتساب المتجر أو نظام الطلبات قبل الإطلاق.</p><textarea style="width:100%;height:110px;background:#08080b;color:white;border:1px solid #444;padding:10px">${decodeURIComponent(msg.replaceAll("%0A","\\n"))}</textarea><p class="notice">هذه نسخة تجريبية؛ لا يتم تحصيل أي أموال ولا تنفيذ الشحن فعلياً.</p>`;document.getElementById("modal").style.display="flex"}
+function digitalInfo(n){alert(n+" — سيتم إضافة الباقات والأسعار عند تجهيز هذا القسم.")}
+draw();
+</script></body></html>
